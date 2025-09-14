@@ -10,7 +10,7 @@ from eval1 import evaluate_csv
 # Streamlit UI Setup
 # -------------------------------
 
-st.title("Agentic AI Evaluation Framework")
+st.title("Agentic Evaluation Framework")
 
 # File uploader for input CSV
 uploaded_file = st.file_uploader("Upload CSV", type="csv")
@@ -164,3 +164,4 @@ if uploaded_file:
                 ax[i].set_title(f"{dim} distribution")
             plt.tight_layout()
             st.pyplot(fig)
+
