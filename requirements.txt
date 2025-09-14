@@ -1,0 +1,17 @@
+python-dotenv
+requests 
+scikit-learn
+pydantic
+typing
+openai
+matplotlib
+seaborn
+pandas
+numpy
+tqdm
+together 
+pandas 
+langchain_openai
+requests 
+google-generativeai
+streamlit
