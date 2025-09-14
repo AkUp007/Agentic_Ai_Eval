@@ -1,7 +1,7 @@
-# **Agentic AI Evaluation Framework**
+# **Agentic Evaluation Framework**
 
 ## **📌 Overview**
-The Agentic AI Evaluation Framework is an automated system for the multi-dimensional evaluation of AI agent responses using a powerful **LLM-as-a-Judge** methodology. It provides a systematic, reproducible, and scalable solution to score AI agent outputs across multiple quality dimensions.
+The Agentic Evaluation Framework is an automated system for the multi-dimensional evaluation of AI agent responses using a powerful **LLM-as-a-Judge** methodology. It provides a systematic, reproducible, and scalable solution to score AI agent outputs across multiple quality dimensions.
 The included Streamlit application allows users to upload datasets, run evaluations, and visualize results interactively.
 
 ---
