@@ -105,7 +105,7 @@ Note: Provide only the key(s) for the judge model(s) you plan to use.
 streamlit run stream.py
 ```
 Access in your browser:
-👉 **http://localhost:8501**
+👉 **[http://agentic-ai-eval007.streamlit.app](https://agentic-ai-eval007.streamlit.app/)**
 
 ---
 
