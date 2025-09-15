@@ -24,7 +24,6 @@ from tqdm.asyncio import tqdm_asyncio
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import matplotlib.pyplot as plt
 import seaborn as sns
-from wordcloud import WordCloud
 from prompt import JUDGE_RUBRIC_PROMPT # custom rubric prompt for evaluation
 load_dotenv() # Load environment variables from .env file
 
@@ -253,3 +252,4 @@ def evaluate_csv(input_csv: str, output_csv: str, batch_size: int = 10, total_ro
         return pd.concat(all_results, ignore_index=True)
     else:
         return pd.DataFrame()
+
