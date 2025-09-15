@@ -189,9 +189,7 @@ def evaluate_csv(input_csv: str, output_csv: str, batch_size: int = 10, total_ro
     # If file exists, resume from last completed batch
     start_index = 0
     if os.path.exists(output_csv):
-        done_df = pd.read_csv(output_csv)
-        start_index = len(done_df)
-        print(f"Resuming from row {start_index}")
+        os.remove(output_csv)
 
     start_time = time.time()
     all_results =[]
@@ -213,6 +211,7 @@ def evaluate_csv(input_csv: str, output_csv: str, batch_size: int = 10, total_ro
 
             # Collect structured results
             results.append({
+                "Agent_id": f"Agent_{i+1}",
                 "prompt_id": f"Prompt_{i+1}",
                 "prompt": prompt,
                 "response": response,
@@ -248,4 +247,5 @@ def evaluate_csv(input_csv: str, output_csv: str, batch_size: int = 10, total_ro
         return pd.concat(all_results, ignore_index=True)
     else:
         return pd.DataFrame()
+
 
