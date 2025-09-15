@@ -24,6 +24,7 @@ from tqdm.asyncio import tqdm_asyncio
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import matplotlib.pyplot as plt
 import seaborn as sns
+from wordcloud import WordCloud
 from prompt import JUDGE_RUBRIC_PROMPT # custom rubric prompt for evaluation
 load_dotenv() # Load environment variables from .env file
 
@@ -178,7 +179,7 @@ def score_with_groq(prompt: str, response: str) -> dict:
 # ================== CSV EVALUATION PIPELINE ==================
 
 expla =[]
-def evaluate_csv(input_csv: str, output_csv: str, batch_size: int = 10, total_rows: int = None):
+def evaluate_csv(input_csv: str, output_csv: str, batch_size: int = 10, total_rows: int = None, scorer=None):
     df = pd.read_csv(input_csv)
     
     # Limit number of rows to process
@@ -204,8 +205,9 @@ def evaluate_csv(input_csv: str, output_csv: str, batch_size: int = 10, total_ro
             prompt = row["prompt"]
             response = row["response"]
 
-            judge = score_with_gemini(prompt, response)  # <-- your function
+            judge = scorer(prompt, response) if scorer else {}  
             scores = judge.get("scores", {})
+            explanations = judge.get("explanations", {}) 
             # total = judge.get("total_score", 0)
             print(judge)            
 
@@ -219,6 +221,10 @@ def evaluate_csv(input_csv: str, output_csv: str, batch_size: int = 10, total_ro
                 "hallucination": scores.get("hallucination", 0),
                 "assumption_control": scores.get("assumption_control", 0),
                 "coherence_accuracy": scores.get("coherence_accuracy", 0),
+                "instruction_following_expl": explanations.get("instruction_following", ""),
+                "hallucination_expl": explanations.get("hallucination", ""),
+                "assumption_control_expl": explanations.get("assumption_control", ""),
+                "coherence_accuracy_expl": explanations.get("coherence_accuracy", ""),
                 "total_score": np.mean([
                     scores.get("instruction_following", 0),
                     scores.get("hallucination", 0),
@@ -247,5 +253,3 @@ def evaluate_csv(input_csv: str, output_csv: str, batch_size: int = 10, total_ro
         return pd.concat(all_results, ignore_index=True)
     else:
         return pd.DataFrame()
-
-
