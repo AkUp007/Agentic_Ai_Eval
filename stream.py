@@ -4,7 +4,7 @@ import os
 import time
 import seaborn as sns
 import matplotlib.pyplot as plt
-from eval1 import evaluate_csv
+from eval1 import evaluate_csv, score_with_gemini, score_with_groq, score_with_qwen
 
 # -------------------------------
 # Streamlit UI Setup
@@ -21,64 +21,11 @@ batch_size = st.slider("Batch Size", 1, 50, 10)
 # Input box for limiting rows (0 means process all rows)
 row_limit = st.number_input("Row Limit (leave 0 for all)", min_value=0, value=0)
 
-# if uploaded_file:
-#     input_csv = "input.csv"
-#     with open(input_csv, "wb") as f:
-#         f.write(uploaded_file.read())
-
-#     output_csv = "results.csv"
-
-#     if st.button("Start Evaluation"):
-#         st.write("⏳ Running evaluation...")
-#         # Check if previous results already exist
-#         if "df_result" in st.session_state:
-#             prev_df = st.session_state["df_result"]
-#         else:
-#             prev_df = pd.DataFrame()
-            
-#         df_result = evaluate_csv(input_csv, output_csv, batch_size, row_limit if row_limit > 0 else None)
-#         print(len(df_result))
-#         # Merge with previous results to avoid re-evaluating
-#         if not prev_df.empty:
-#             df_result = pd.concat([prev_df, df_result]).drop_duplicates().reset_index(drop=True)
-#         print(len(df_result))
-
-#         # If row_limit < already available results, just sample
-#         if row_limit > 0 and len(df_result) > row_limit:
-#             df_result = df_result.sample(row_limit, random_state=42).reset_index(drop=True)
-#         print(len(df_result))
-            
-#         st.session_state["df_result"] = df_result 
-#         st.success("✅ Evaluation complete!")
-#         st.dataframe(df_result)
-        
-#     if "df_result" in st.session_state:
-#         df_result = st.session_state["df_result"]
-#         print(len(df_result))
-#     # Visualization buttons
-#         dims = ["instruction_following", "hallucination", "assumption_control", "coherence_accuracy"]
-#         if st.button("Show Heatmap"):
-#             fig, ax = plt.subplots()
-#             sns.heatmap(df_result[dims].corr(), annot=True, cmap="coolwarm", vmin=-1, vmax=1)
-#             plt.title("Correlation Between Evaluation Dimensions")
-#             st.pyplot(fig)
-
-#         if st.button("Show Histogram of Total Scores"):
-#             fig, ax = plt.subplots()
-#             df_result["total_score"].hist(ax=ax, bins=20,edgecolor="black")
-#             plt.title("Distribution of Total Scores")
-#             plt.xlabel("Total Score")
-#             plt.ylabel("Frequency")
-#             st.pyplot(fig)
-            
-#         if st.button("Show Histogram of dimensions distribution"):
-#             fig, ax = plt.subplots(2, 2, figsize=(10, 8))
-#             ax = ax.flatten()
-#             for i, dim in enumerate(dims):
-#                 df_result[dim].hist(ax=ax[i], bins=10, edgecolor="black")
-#                 ax[i].set_title(f"{dim} distribution")
-#             plt.tight_layout()
-#             st.pyplot(fig)
+# model chice
+model_choice = st.selectbox(
+    "Choose Evaluation Model",
+    ["gemini-2.5-flash", "llama-3.1-8b-instant", "mistral-7b-instruct"]
+)
 
 # -------------------------------
 # Main Evaluation Workflow
@@ -94,7 +41,14 @@ if uploaded_file:
     # Button to start evaluation
     if st.button("Start Evaluation"):
         st.write("⏳ Running evaluation...")
-
+        
+        if model_choice == "gemini-2.5-flash":
+            scorer = score_with_gemini
+        elif model_choice == "llama-3.1-8b-instant":
+            scorer = score_with_groq
+        else:
+            scorer = score_with_qwen
+        
         # Load previously evaluated rows
         full_df = st.session_state.get("full_df", pd.DataFrame())
 
@@ -103,7 +57,8 @@ if uploaded_file:
             input_csv, 
             output_csv, 
             batch_size, 
-            None if row_limit == 0 else row_limit
+            None if row_limit == 0 else row_limit,
+            scorer=scorer      
         )
 
         # Merge with previous results (keep all evaluations)
@@ -135,7 +90,6 @@ if uploaded_file:
     if "view_df" in st.session_state:
         df_result = st.session_state["view_df"]
         print("Rows shown:", len(df_result))
-        print("Total evaluated rows:", len(st.session_state["full_df"]))
         
         # Evaluation dimensions to visualize
         dims = ["instruction_following", "hallucination", "assumption_control", "coherence_accuracy"]
@@ -164,4 +118,3 @@ if uploaded_file:
                 ax[i].set_title(f"{dim} distribution")
             plt.tight_layout()
             st.pyplot(fig)
-
